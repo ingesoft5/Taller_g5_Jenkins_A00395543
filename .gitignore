@@ -1,1 +1,23 @@
 .DS_Store
+
+# Archivos de Entorno (Secretos)
+.env
+*.env
+
+# Maven / Backend
+target/
+*.jar
+*.war
+*.class
+
+# Node / Frontend
+node_modules/
+dist/
+npm-debug.log
+yarn-error.log
+
+# IDEs y Editores
+.idea/
+.vscode/
+*.iml
+*.swp

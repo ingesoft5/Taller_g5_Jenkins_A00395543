@@ -13,14 +13,18 @@ services:
     networks:
       - cicd_network
     ports:
+      - "${NEXUS_UI_PORT:-8081}:8081"
+      - "${NEXUS_DOCKER_REGISTRY_PORT:-8082}:8082"
     volumes:
+      - "nexus_data:/nexus-data"
     environment:
+      - INSTALL4J_ADD_VM_PARAMS=-Xms512m -Xmx512m -XX:MaxDirectMemorySize=512m
     healthcheck:
-      test: 
-      interval: 
-      timeout: 
-      retries: 
-      start_period: 
+      test: ["CMD", "curl", "-f", "http://localhost:8081/service/rest/v1/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
 
 networks:
   cicd_network:

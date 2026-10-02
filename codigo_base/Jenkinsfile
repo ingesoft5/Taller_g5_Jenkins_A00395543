@@ -1,41 +1,25 @@
-// =============================================================================
-// Taller Evaluativo 2 - Fase 4: Pipeline Declarativo en Jenkins
-//
-// Complete los TODOs de cada etapa. Recuerde:
-//   - Prohibido el tag ":latest" al publicar en Nexus (empaquetamiento
-//     inmutable, Fase 2).
-//   - Las credenciales (usuario/clave de Nexus, token de GitHub) se
-//     inyectan mediante los IDs configurados en Jenkins > Credentials,
-//     NUNCA en texto plano dentro de este archivo.
-// =============================================================================
-
 pipeline {
     agent any
 
     environment {
-        // TODO
-        IMAGE_TAG = "TODO-DEFINA-EN-UN-STAGE-SCRIPT"
-
-        // TODO
-        NEXUS_REGISTRY   = "TODO-HOST:TODO-PUERTO-DOCKER-REGISTRY"
-        NEXUS_MAVEN_REPO = "TODO-URL-REPOSITORIO-MAVEN-RELEASES"
-
-        // TODO
-        NEXUS_CREDENTIALS_ID = "TODO-ID-CREDENCIAL-NEXUS"
+        IMAGE_TAG = "build-${env.BUILD_NUMBER}"
+        NEXUS_REGISTRY   = "localhost:8082"
+        NEXUS_MAVEN_REPO = "http://localhost:8081/repository/maven-releases/"
+        NEXUS_CREDENTIALS_ID = "nexus-diana"
     }
 
     stages {
-
         stage('Checkout & Test') {
             steps {
                 checkout scm
 
                 script {
-                    // TODO:
+                    echo "The IMAGE TAG is: ${env.IMAGE_TAG}"
                 }
 
                 dir('backend') {
-                    // TODO
+                    echo "Compiling and testing backend..."
+                    sh 'mvn -B clean verify'
                 }
             }
         }
@@ -43,23 +27,37 @@ pipeline {
         stage('Package & Tag Inmutable') {
             steps {
                 dir('backend') {
-                    // TODO
+                    echo "Packaging backend..."
+                    sh 'mvn -B package'
                 }
                 dir('frontend') {
-                    // TODO:
+                    echo "Installing frontend dependencies..."
+                    sh 'npm ci'
+                    echo "Linting frontend..."
+                    sh 'npm run lint'
                 }
             }
         }
 
         stage('Publish to Nexus') {
             steps {
-                // TODO
+                withCredentials([usernamePassword(credentialsId: env.NEXUS_CREDENTIALS_ID, usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                    dir('backend') {
+                        sh "mvn deploy -DaltDeploymentRepository=nexus::default::${env.NEXUS_MAVEN_REPO} -Dusername=${NEXUS_USER} -Dpassword=${NEXUS_PASS}"
+                    }
+                    dir('frontend') {
+                        sh "echo \$NEXUS_PASS | docker login ${env.NEXUS_REGISTRY} -u \$NEXUS_USER --password-stdin"
+                        sh "docker build -t ${env.NEXUS_REGISTRY}/frontend:${env.IMAGE_TAG} ."
+                        sh "docker push ${env.NEXUS_REGISTRY}/frontend:${env.IMAGE_TAG}"
+                        sh "docker logout ${env.NEXUS_REGISTRY}"
+                    }
+                }
             }
         }
 
         stage('Deploy & Smoke Test') {
             steps {
-                // TODO
+                sh "echo 'Deploying...'"
             }
         }
     }
