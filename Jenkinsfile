@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_TAG = "build-${env.BUILD_NUMBER}"
         NEXUS_REGISTRY   = "localhost:8082"
-        NEXUS_MAVEN_REPO = "http://localhost:8081/repository/maven-releases/"
+        NEXUS_MAVEN_REPO = "http://nexus:8081/repository/maven-releases/"
         NEXUS_CREDENTIALS_ID = "nexus-diana"
     }
 
