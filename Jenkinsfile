@@ -43,7 +43,21 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: env.NEXUS_CREDENTIALS_ID, usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                     dir('codigo_base/backend') {
-                        sh "mvn deploy -DaltDeploymentRepository=nexus::default::${env.NEXUS_MAVEN_REPO} -Dusername=${NEXUS_USER} -Dpassword=${NEXUS_PASS}"
+                        sh """
+                            cat <<EOF > settings.xml
+                            <settings>
+                            <servers>
+                            <server>
+                            <id>nexus</id>
+                            <username>${NEXUS_USER}</username>
+                            <password>${NEXUS_PASS}</password>
+                            </server>
+                            </servers>
+                            </settings>
+                            EOF
+                            mvn deploy -s settings.xml -DaltDeploymentRepository=nexus::default::${env.NEXUS_MAVEN_REPO}
+                            rm -f settings.xml
+                        """
                     }
                     dir('codigo_base/frontend') {
                         sh "echo \$NEXUS_PASS | docker login ${env.NEXUS_REGISTRY} -u \$NEXUS_USER --password-stdin"
