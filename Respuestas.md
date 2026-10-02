@@ -13,5 +13,6 @@ R// Porque es mutable, no habria forma de llevar correctamente el versionado por
 R// Es necesario porque Jenkins esta corriendo en local y no tiene IP publica, por lo que GitHub no puede acceder a él. si el canal de Smee se detiene, la automatización se detendra. Cuando se hace push, GitHub envía el evento a Smee.io, pero como tu cliente Smee está caído, el evento nunca llega a Jenkins. El pipeline no se disparará automáticamente. 
 
 
-
+Bitacora:
+Utilice la IA para terminar los Dockerfiles y el Jenkinsfile. y revisar errores de porque no me hacia bien el build y el pipeline
 
