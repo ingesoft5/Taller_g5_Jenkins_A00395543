@@ -11,3 +11,5 @@ R// Porque es mutable, no habria forma de llevar correctamente el versionado por
 2. Webhooks vía Smee.io: ¿Por por qué es necesario un relay como Smee.io cuando el servidor Jenkins no tiene IP pública ni puertos expuestos a Internet? ¿Qué sucede con la automatización si el canal de Smee se detiene mientras un desarrollador hace push? 
 
 R// Es necesario porque Jenkins esta corriendo en local y no tiene IP publica, por lo que GitHub no puede acceder a él. si el canal de Smee se detiene, la automatización se detendra. Cuando se hace push, GitHub envía el evento a Smee.io, pero como tu cliente Smee está caído, el evento nunca llega a Jenkins. El pipeline no se disparará automáticamente. 
+
+
